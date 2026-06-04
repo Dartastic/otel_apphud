@@ -2,7 +2,6 @@
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
 import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
-import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_apphud_suppression.dart';
 
@@ -54,50 +53,65 @@ Future<T> tracedApphud<T>({
   final t = tracer ?? OTel.tracerProvider().getTracer('otel_apphud');
   final span = t.startSpan('apphud $operation', kind: SpanKind.client);
   try {
-    span.setStringAttribute('rpc.system', 'apphud');
+    span.addAttributes(
+        OTel.attributes([OTel.attributeString('rpc.system', 'apphud')]));
     final r = await invoke();
     final res = r.result;
     if (res != null) {
       if (res.appId != null) {
-        span.setStringAttribute('apphud.app.id', res.appId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('apphud.app.id', res.appId!)]));
       }
       if (res.userId != null) {
-        span.setStringAttribute('user.id', res.userId!);
+        span.addAttributes(
+            OTel.attributes([OTel.attributeString('user.id', res.userId!)]));
       }
       if (res.productBundleId != null) {
-        span.setStringAttribute(
-            'apphud.product.bundle_id', res.productBundleId!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('apphud.product.bundle_id', res.productBundleId!)
+        ]));
       }
       if (res.paywallId != null) {
-        span.setStringAttribute('apphud.paywall.id', res.paywallId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('apphud.paywall.id', res.paywallId!)]));
       }
       if (res.placementId != null) {
-        span.setStringAttribute('apphud.placement.id', res.placementId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('apphud.placement.id', res.placementId!)]));
       }
       if (res.subscriptionState != null) {
-        span.setStringAttribute(
-            'apphud.subscription.state', res.subscriptionState!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+              'apphud.subscription.state', res.subscriptionState!)
+        ]));
       }
       if (res.priceAmount != null) {
-        span.setDoubleAttribute('apphud.price.amount', res.priceAmount!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeDouble('apphud.price.amount', res.priceAmount!)]));
       }
       if (res.currency != null) {
-        span.setStringAttribute('apphud.currency', res.currency!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('apphud.currency', res.currency!)]));
       }
       if (res.store != null) {
-        span.setStringAttribute('apphud.store', res.store!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('apphud.store', res.store!)]));
       }
       if (res.statusCode != null) {
-        span.setIntAttribute('http.response.status_code', res.statusCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeInt('http.response.status_code', res.statusCode!)]));
       }
       if (res.errorCode != null) {
-        span.setStringAttribute('apphud.error.code', res.errorCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('apphud.error.code', res.errorCode!)]));
       }
       final fail = res.errorCode != null ||
           (res.statusCode != null && res.statusCode! >= 400);
       if (fail) {
-        span.setStringAttribute(
-            ErrorResource.errorType.key, res.errorCode ?? 'apphud.error');
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+              ErrorResource.errorType.key, res.errorCode ?? 'apphud.error')
+        ]));
         span.setStatus(SpanStatusCode.Error, res.errorMessage);
       }
     }
