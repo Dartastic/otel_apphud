@@ -1,7 +1,7 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_apphud_suppression.dart';
 
@@ -44,73 +44,77 @@ class ApphudCallResult<T> {
 Future<T> tracedApphud<T>({
   required String operation,
   required Future<ApphudCallResult<T>> Function() invoke,
-  Tracer? tracer,
+  APITracer? tracer,
 }) async {
   if (apphudInstrumentationSuppressed()) {
     final r = await invoke();
     return r.value;
   }
-  final t = tracer ?? OTel.tracerProvider().getTracer('otel_apphud');
+  final t = tracer ?? OTelAPI.tracerProvider().getTracer('otel_apphud');
   final span = t.startSpan('apphud $operation', kind: SpanKind.client);
   try {
     span.addAttributes(
-        OTel.attributes([OTel.attributeString('rpc.system', 'apphud')]));
+        OTelAPI.attributes([OTelAPI.attributeString('rpc.system', 'apphud')]));
     final r = await invoke();
     final res = r.result;
     if (res != null) {
       if (res.appId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('apphud.app.id', res.appId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('apphud.app.id', res.appId!)]));
       }
       if (res.userId != null) {
-        span.addAttributes(
-            OTel.attributes([OTel.attributeString('user.id', res.userId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('user.id', res.userId!)]));
       }
       if (res.productBundleId != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString('apphud.product.bundle_id', res.productBundleId!)
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString(
+              'apphud.product.bundle_id', res.productBundleId!)
         ]));
       }
       if (res.paywallId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('apphud.paywall.id', res.paywallId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('apphud.paywall.id', res.paywallId!)]));
       }
       if (res.placementId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('apphud.placement.id', res.placementId!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('apphud.placement.id', res.placementId!)
+        ]));
       }
       if (res.subscriptionState != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString(
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString(
               'apphud.subscription.state', res.subscriptionState!)
         ]));
       }
       if (res.priceAmount != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeDouble('apphud.price.amount', res.priceAmount!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeDouble('apphud.price.amount', res.priceAmount!)
+        ]));
       }
       if (res.currency != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('apphud.currency', res.currency!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('apphud.currency', res.currency!)]));
       }
       if (res.store != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('apphud.store', res.store!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('apphud.store', res.store!)]));
       }
       if (res.statusCode != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeInt('http.response.status_code', res.statusCode!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeInt('http.response.status_code', res.statusCode!)
+        ]));
       }
       if (res.errorCode != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('apphud.error.code', res.errorCode!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('apphud.error.code', res.errorCode!)]));
       }
       final fail = res.errorCode != null ||
           (res.statusCode != null && res.statusCode! >= 400);
       if (fail) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString(
-              ErrorResource.errorType.key, res.errorCode ?? 'apphud.error')
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString(
+              ErrorAttributes.errorType.key, res.errorCode ?? 'apphud.error')
         ]));
         span.setStatus(SpanStatusCode.Error, res.errorMessage);
       }
