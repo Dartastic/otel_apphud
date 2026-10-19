@@ -6,6 +6,7 @@ import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 import 'otel_apphud_suppression.dart';
 
 class ApphudResult {
+  /// Creates a result.
   const ApphudResult({
     this.appId,
     this.userId,
@@ -35,8 +36,13 @@ class ApphudResult {
   final String? errorMessage;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class ApphudCallResult<T> {
+  /// Creates a call result.
   const ApphudCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final ApphudResult? result;
 }
